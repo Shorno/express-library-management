@@ -1,5 +1,5 @@
 import {Request, Response} from "express"
-import {Book} from "../models/books.model";
+import {Book} from "../models/book.model";
 
 
 export const createBook = async (req: Request, res: Response) => {
@@ -35,14 +35,13 @@ export const createBook = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Failed to create book",
-            error: error instanceof Error ? error.message : "Internal Server Error"
+            error: error instanceof Error ? error : "Internal Server Error"
         });
 
     }
 }
 
 export const getAllBooks = async (req: Request, res: Response) => {
-
 
     try {
 
@@ -65,8 +64,6 @@ export const getAllBooks = async (req: Request, res: Response) => {
             sortObject[sortBy] = sortDirection
         }
 
-        console.log("logging in filter:", sortObject);
-
 
         const books = await Book.find(filterObject).sort(sortObject).limit(limit);
         res.status(200).json({
@@ -79,7 +76,86 @@ export const getAllBooks = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Failed to get books",
-            error: error instanceof Error ? error.message : "Internal Server Error"
+            error: error instanceof Error ? error : "Internal Server Error"
+        })
+    }
+}
+
+export const getBookById = async (req: Request, res: Response) => {
+    try {
+        const book = await Book.findById(req.params.bookId)
+        if (!book) {
+            res.status(404).json({
+                message: "Book not found"
+            })
+            return
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Book retrieved successfully",
+            data: book
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to get book",
+            error: error instanceof Error ? error : "Internal Server Error"
+        })
+    }
+}
+
+export const updateBook = async (req: Request, res: Response) => {
+
+    try {
+
+        const updatedBook = await Book.findByIdAndUpdate(req.params.bookId, req.body, {
+            new: true
+        })
+
+        if (!updatedBook) {
+            res.status(404).json({
+                success: false,
+                message: "Book not found"
+            });
+            return
+        }
+
+
+        res.status(200).json({
+            success: true,
+            message: "Book updated successfully",
+            data: updatedBook
+        })
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            error: error
+        })
+    }
+
+}
+
+export const deleteBookById = async (req: Request, res: Response) => {
+    try {
+        const deletedBook = await Book.findByIdAndDelete(req.params.bookId)
+
+        if (!deletedBook) {
+            res.status(404).json({
+                success: false,
+                message: "Book not found"
+            });
+            return
+        }
+        res.status(200).json({
+            success: true,
+            message: "Book deleted successfully",
+            data: null
+        })
+    } catch (error: any) {
+        console.log(error)
+        res.status(500).json({
+            error: error
         })
     }
 }

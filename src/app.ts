@@ -1,5 +1,6 @@
 import express, {Application, Request, Response} from "express"
 import booksRoutes from "./routes/booksRoutes"
+import borrowRoute from "./routes/borrowRoute";
 
 export const app: Application = express()
 
@@ -11,4 +12,5 @@ app.get('/', (req: Request, res: Response) => {
 
 
 app.use("/api/books", booksRoutes)
+app.use("/api/borrow", borrowRoute)
 
