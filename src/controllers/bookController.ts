@@ -8,6 +8,7 @@ export const createBook = async (req: Request, res: Response) => {
 
     if (!title || !author || !genre || !isbn || !copies) {
         res.status(400).json({
+            success: false,
             message: "Missing required fields"
         });
         return;
@@ -86,6 +87,7 @@ export const getBookById = async (req: Request, res: Response) => {
         const book = await Book.findById(req.params.bookId)
         if (!book) {
             res.status(404).json({
+                success: false,
                 message: "Book not found"
             })
             return
