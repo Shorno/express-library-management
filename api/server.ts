@@ -1,6 +1,6 @@
-import {app} from "../src/app";
 import "../src/env"
 import {connectDB} from "../src/config/mongoose";
+import app from "../src/app";
 const PORT = process.env.PORT || 8000
 
 
