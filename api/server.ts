@@ -1,9 +1,8 @@
-import {app} from "./app";
-import "./env"
-import {connectDB} from "./config/mongoose";
+import {app} from "../src/app";
+import "../src/env"
+import {connectDB} from "../src/config/mongoose";
 const PORT = process.env.PORT || 8000
 
-console.log(process.env.PORT)
 
 async function start() {
     await connectDB();
