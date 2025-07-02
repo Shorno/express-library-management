@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import '../src/env';
+import cors from "cors"
 import path from "path"
 import connectDB from "../src/config/mongodb";
 import booksRoutes from "../src/routes/booksRoutes";
@@ -7,6 +8,8 @@ import borrowRoute from "../src/routes/borrowRoute";
 import * as fs from "node:fs";
 
 const app: Application = express();
+
+app.use(cors({ origin: 'https://open-library-ruddy-chi.vercel.app' }))
 
 app.use(express.json());
 
