@@ -5,16 +5,15 @@ import mongoose from "mongoose";
 
 
 export const createBorrowBook = async (req: Request, res: Response) => {
-    const {book, quantity, dueDate} = req.body
+    const {book, quantity, dueDate} = req.body;
 
     try {
-
         if (!book || !dueDate) {
             res.status(400).json({
                 success: false,
                 message: "Required fields are missing"
             });
-            return
+            return;
         }
 
         const existingBook = await Book.findById(book);
@@ -41,49 +40,40 @@ export const createBorrowBook = async (req: Request, res: Response) => {
             });
             return;
         }
+
         const session = await mongoose.startSession();
-        session.startTransaction();
 
+        const result = await session.withTransaction(async () => {
+            existingBook.borrowCopies(quantity);
 
-        try {
-            existingBook.borrowCopies(quantity)
+            await existingBook.save({session});
 
-            const [_, borrowRecord] = await Promise.all([
-                existingBook.save({session}),
-                Borrowed.create([{
-                    book,
-                    quantity,
-                    dueDate
-                }], {session})
-            ]);
+            const borrowRecord = await Borrowed.create([{
+                book,
+                quantity,
+                dueDate
+            }], {session});
 
-            await session.commitTransaction();
+            return Array.isArray(borrowRecord) ? borrowRecord[0] : borrowRecord;
+        });
 
-            const createdRecord = Array.isArray(borrowRecord) ? borrowRecord[0] : borrowRecord;
+        await session.endSession();
 
-            res.status(200).json({
-                success: true,
-                message: "Book borrowed successfully",
-                data: createdRecord,
-            });
-
-
-        } catch (transactionError) {
-            await session.abortTransaction();
-            throw transactionError;
-        } finally {
-            await session.endSession();
-        }
+        res.status(200).json({
+            success: true,
+            message: "Book borrowed successfully",
+            data: result,
+        });
 
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({
             success: false,
             message: "Validation failed",
             error: error
-        })
+        });
     }
-}
+};
 
 
 export const borrowedBookSummery = async (req: Request, res: Response) => {

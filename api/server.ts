@@ -9,7 +9,7 @@ import * as fs from "node:fs";
 
 const app: Application = express();
 
-app.use(cors({ origin: 'https://open-library-ruddy-chi.vercel.app' }))
+app.use(cors({ origin: ['https://open-library-ruddy-chi.vercel.app', 'http://localhost:5173'] }))
 
 app.use(express.json());
 
